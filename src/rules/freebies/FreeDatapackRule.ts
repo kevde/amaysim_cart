@@ -1,35 +1,34 @@
 import * as _ from 'lodash';
-import { PriceRule } from 'src/rules/PriceRule';
 import { SimCard } from 'src/domains/SimCard';
+import { Discount } from 'src/domains/Discount';
+import { PriceRule } from 'src/rules/PriceRule';
+import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { DatapackSimCard } from 'src/domains/DatapackSimCard';
 import { Expiration } from 'src/expirations/Expiration';
 
-export class FreeDatapackRule  {
-  productCode: string;
-  unitPrice: number;
+export class FreeDatapackRule implements PriceRule {
+  baseRule: BasePriceRule;
+  itemsToActivate: number;
   expiration: Expiration;
 
-  constructor(productCode: string, unitPrice: number) {
-    this.productCode = productCode;
-    this.unitPrice = unitPrice;
-    this.expiration = null;
+  constructor(baseRule: BasePriceRule, itemsToActivate: number, expiration: Expiration = null) {
+    this.baseRule = baseRule;
+    this.expiration = expiration;
+    this.itemsToActivate = itemsToActivate;
   }
 
-  countValidItems(items: SimCard[]) {
-    return this.getValidItems(items).length;
+  isActivated(items: SimCard[], date: Date = new Date()) {
+    const expirationValid = (this.expiration) ? this.expiration.isDateValid(date) : true;
+    return expirationValid && this.baseRule.countValidItems(items) >= this.itemsToActivate;
   }
 
-  getValidItems(items: SimCard[]) {
-    return _.filter(items, (item) => item.code === this.productCode);
+  createDiscount(items: SimCard[]) {
+    const freeDataPacks = this.getFreeDatapacks(items);
+    return new Discount(freeDataPacks.length, 0, 0, freeDataPacks);
   }
 
-  hasValidItems(items: SimCard[]) {
-    const validItems = this.getValidItems(items);
-    return validItems.length > 1;
-  }
-
-  getFreeDatapacks(items: SimCard[]) {
-    const datapacksCount = _.floor(this.getValidItems(items).length / 2);
+  private getFreeDatapacks(items: SimCard[]) {
+    const datapacksCount = _.floor(this.baseRule.countValidItems(items) / 2);
     return _.times(datapacksCount, () => new DatapackSimCard());
   }
 }

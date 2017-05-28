@@ -1,23 +1,24 @@
 import 'mocha';
 import * as _ from 'lodash';
+import * as chaiThings from 'chai-things';
+import { expect, should, use } from 'chai';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
 import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
 import { DatapackSimCard } from 'src/domains/DatapackSimCard';
+import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { FreeDatapackRule } from 'src/rules/freebies/FreeDatapackRule';
-import { expect, should, use } from 'chai';
-// import * as chaiThings from 'chai-things';
-import * as sinon from 'sinon';
 
 describe('FreeDatapackRule', () => {
   let priceRule, smallCard, mediumCard, largeCard;
-  let items, unitPrice, smallCards, mediumCards, largeCards;
+  let items, itemsWithMediumSimCards;
+  let mediumBasePriceRule, smallCards, mediumCards, largeCards;
   should();
-  // use(chaiThings);
+  use(chaiThings);
 
   before(() => {
-    unitPrice = 24.90;
-    priceRule = new FreeDatapackRule('ult_medium', unitPrice);
+    mediumBasePriceRule = new BasePriceRule('ult_medium', 24.90);
+    priceRule = new FreeDatapackRule(mediumBasePriceRule, 2);
     smallCard = new SmallSimCard();
     mediumCard = new MediumSimCard();
     largeCard = new LargeSimCard();
@@ -25,33 +26,30 @@ describe('FreeDatapackRule', () => {
     mediumCards = _.times(5, () => mediumCard);
     largeCards = _.times(2, () => largeCard);
     items = [...smallCards, ...mediumCards, ...largeCards];
+    itemsWithMediumSimCards = [...smallCards, ...mediumCards, ...largeCards];
   });
 
-  it('should contain medium sim cards ', () => {
+  it('should be activated when medium sim card exists', () => {
     // given
-    const withMediumSimCards = [...smallCards, ...mediumCards, ...largeCards];
-    const withoutMediumSimCards = [...smallCards, ...largeCards];
+    const itemsWithoutMediumSimCards = [...smallCards, ...largeCards];
 
     // when
-    const withMediumSimCardsResult = priceRule.hasValidItems(withMediumSimCards);
-    const withoutMediumSimCardsResult = priceRule.hasValidItems(withoutMediumSimCards);
+    const activatedResult = priceRule.isActivated(itemsWithMediumSimCards);
+    const inactivatedResult = priceRule.isActivated(itemsWithoutMediumSimCards);
 
     // then
-    withMediumSimCardsResult.should.be.equal(true);
-    withoutMediumSimCardsResult.should.be.equal(false);
+    activatedResult.should.be.equal(true);
+    inactivatedResult.should.be.equal(false);
   });
 
-  xit('should have one free datapack sim card for every two medium sim cards', () => {
+  it('should create a discount with free datapacks', () => {
     // given
-    const itemsWithMoreThanTwoMediumSimCards = [...smallCards, ...mediumCards, ...largeCards];
-    const itemsWithMediumSimCards = [...smallCards, mediumCard, ...largeCards];
-
+    
     // when
-    const withFreeDatapackSimCards = priceRule.getFreeDatapacks(itemsWithMoreThanTwoMediumSimCards);
-    const withoutFreeDatapackSimCards = priceRule.getFreeDatapacks(itemsWithMediumSimCards);
+    const discount = priceRule.createDiscount(itemsWithMediumSimCards);
 
     // then
-    // withFreeDatapackSimCards.should.all.have.instanceof(DatapackSimCard);
-    withFreeDatapackSimCards.should.all.have.property('price', 0);
+    discount.freebies.should.all.have.instanceof(DatapackSimCard);
+    discount.freebies.length.should.be.equal(_.floor(mediumCards.length / 2));
   });
 });
