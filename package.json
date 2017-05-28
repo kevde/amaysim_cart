@@ -1,0 +1,28 @@
+{
+  "name": "shopping_cart",
+  "version": "1.0.0",
+  "description": "Shopping Cart for Amaysim",
+  "dependencies": {
+    "chai": "^3.5.0",
+    "datejs": "^1.0.0-rc3",
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "typescript": "^2.3.3"
+  },
+  "devDependencies": {
+    "@types/chai": "^3.5.2",
+    "@types/mocha": "^2.2.41",
+    "chai": "^3.5.0",
+    "chai-things": "^0.2.0",
+    "datejs": "^1.0.0-rc3",
+    "mocha": "^3.4.1",
+    "sinon": "^2.3.1",
+    "ts-node": "^3.0.4",
+    "tsconfig-paths": "^2.1.2"
+  },
+  "scripts": {
+    "test": "mocha  -r ts-node/register -r tsconfig-paths/register test/**/*.test.ts",
+    "start": "node index"
+  },
+  "license": "ISC"
+}
