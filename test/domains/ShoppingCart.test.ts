@@ -155,7 +155,7 @@ describe('ShoppingCart', () => {
     const smallCards = _.times(3, () => smallCard);
     const largeCards = _.times(1, () => largeCard);
     const items = [...smallCards, ...largeCards];
-    const currentDate = new Date(2017, 2, 16);
+    const currentDate = new Date(2017, 5, 16);
     const expiration = new MonthlyExpiration(new Date(2017, 4, 15), 1);
     threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1, expiration);
     priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90, expiration);
@@ -167,6 +167,61 @@ describe('ShoppingCart', () => {
     // then
     shoppingCart.total.should.be.equal(119.6);
   });
+
+  it('should have total of 229.4 dollars when there are 2 small cards and 4 large card and expiration date occured', () => {
+    // given
+    const smallCards = _.times(2, () => smallCard);
+    const largeCards = _.times(4, () => largeCard);
+    const items = [...smallCards, ...largeCards];
+    const currentDate = new Date(2017, 5, 16);
+    const expiration = new MonthlyExpiration(new Date(2017, 4, 15), 1);
+    threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1, expiration);
+    priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90, expiration);
+
+    // when
+    shoppingCart = new ShoppingCart([...baseRules, threeForTwoDiscountRule, priceDropDiscountRule, freeDatapackRule, amaysimPromoRule], currentDate)
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    shoppingCart.total.should.be.equal(229.4);
+  });
+
+  it('should have total of 119.6 dollars when there are 3 small cards and 1 large card and before start date occured', () => {
+    // given
+    const smallCards = _.times(3, () => smallCard);
+    const largeCards = _.times(1, () => largeCard);
+    const items = [...smallCards, ...largeCards];
+    const currentDate = new Date(2017, 4, 14);
+    const expiration = new MonthlyExpiration(new Date(2017, 4, 15), 1);
+    threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1, expiration);
+    priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90, expiration);
+
+    // when
+    shoppingCart = new ShoppingCart([...baseRules, threeForTwoDiscountRule, priceDropDiscountRule, freeDatapackRule, amaysimPromoRule], currentDate)
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    shoppingCart.total.should.be.equal(119.6);
+  });
+
+  it('should have total of 229.4 dollars when there are 2 small cards and 4 large card and before start date occured', () => {
+    // given
+    const smallCards = _.times(2, () => smallCard);
+    const largeCards = _.times(4, () => largeCard);
+    const items = [...smallCards, ...largeCards];
+    const currentDate = new Date(2017, 4, 14);
+    const expiration = new MonthlyExpiration(new Date(2017, 4, 15), 1);
+    threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1, expiration);
+    priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90, expiration);
+
+    // when
+    shoppingCart = new ShoppingCart([...baseRules, threeForTwoDiscountRule, priceDropDiscountRule, freeDatapackRule, amaysimPromoRule], currentDate)
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    shoppingCart.total.should.be.equal(229.4);
+  });
+
 
   const randomize = (orderedItems, callback) => {
     const items = _.toArray(orderedItems);
