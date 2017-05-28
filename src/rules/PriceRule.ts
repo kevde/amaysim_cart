@@ -1,4 +1,4 @@
-import { SimCard } from 'src/domains/SimCard';
+import { SimCard } from '../cards/SimCard';
 import { Expiration } from 'src/expirations/Expiration';
 
 export interface PriceRule {

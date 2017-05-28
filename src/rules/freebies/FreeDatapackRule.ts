@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
-import { SimCard } from 'src/domains/SimCard';
-import { Discount } from 'src/domains/Discount';
+import { SimCard } from '../../cards/SimCard';
+import { Discount } from '../../main/Discount';
 import { PriceRule } from 'src/rules/PriceRule';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
-import { DatapackSimCard } from 'src/domains/DatapackSimCard';
+import { DatapackSimCard } from '../../cards/DatapackSimCard';
 import { Expiration } from 'src/expirations/Expiration';
 
 export class FreeDatapackRule implements PriceRule {

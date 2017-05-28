@@ -1,9 +1,9 @@
 import 'mocha';
 import * as _ from 'lodash';
-import { Discount } from 'src/domains/Discount';
-import { SmallSimCard } from 'src/domains/SmallSimCard';
-import { MediumSimCard } from 'src/domains/MediumSimCard';
-import { LargeSimCard } from 'src/domains/LargeSimCard';
+import { Discount } from '../../../src/main/Discount';
+import { SmallSimCard } from '../../../src/cards/SmallSimCard';
+import { MediumSimCard } from '../../../src/cards/MediumSimCard';
+import { LargeSimCard } from '../../../src/cards/LargeSimCard';
 import { AmaysimPromoRule } from 'src/rules/promos/AmaysimPromoRule';
 import { should } from 'chai';
 

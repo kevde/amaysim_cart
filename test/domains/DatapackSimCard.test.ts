@@ -1,5 +1,5 @@
 import 'mocha';
-import { DatapackSimCard } from 'src/domains/DatapackSimCard';
+import { DatapackSimCard } from '../../src/cards/DatapackSimCard';
 import { expect, should } from 'chai';
 import * as sinon from 'sinon';
 

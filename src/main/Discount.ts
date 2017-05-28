@@ -1,4 +1,4 @@
-import { SimCard } from './SimCard';
+import { SimCard } from '../cards/SimCard';
 
 export class Discount {
   quantities: number;

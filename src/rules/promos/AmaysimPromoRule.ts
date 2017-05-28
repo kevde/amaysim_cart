@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
-import { Discount } from 'src/domains/Discount';
+import { Discount } from '../../main/Discount';
 import { PriceRule } from 'src/rules/PriceRule';
 import { Expiration } from 'src/expirations/Expiration';
-import { SimCard } from 'src/domains/SimCard';
+import { SimCard } from '../../cards/SimCard';
 
 export class AmaysimPromoRule implements PriceRule {
   expiration: Expiration;

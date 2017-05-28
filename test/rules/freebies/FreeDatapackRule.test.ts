@@ -2,10 +2,10 @@ import 'mocha';
 import * as _ from 'lodash';
 import * as chaiThings from 'chai-things';
 import { should, use } from 'chai';
-import { SmallSimCard } from 'src/domains/SmallSimCard';
-import { MediumSimCard } from 'src/domains/MediumSimCard';
-import { LargeSimCard } from 'src/domains/LargeSimCard';
-import { DatapackSimCard } from 'src/domains/DatapackSimCard';
+import { SmallSimCard } from '../../../src/cards/SmallSimCard';
+import { MediumSimCard } from '../../../src/cards/MediumSimCard';
+import { LargeSimCard } from '../../../src/cards/LargeSimCard';
+import { DatapackSimCard } from '../../../src/cards/DatapackSimCard';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { FreeDatapackRule } from 'src/rules/freebies/FreeDatapackRule';
 

@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { SimCard } from './SimCard';
+import { SimCard } from '../cards/SimCard';
 import { Discount } from './Discount';
 import { PriceRule } from 'src/rules/PriceRule';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';

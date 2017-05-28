@@ -5,6 +5,7 @@
   "dependencies": {
     "chai": "^3.5.0",
     "datejs": "^1.0.0-rc3",
+    "inquirer": "^3.0.6",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "typescript": "^2.3.3"

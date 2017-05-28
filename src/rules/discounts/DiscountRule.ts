@@ -1,6 +1,6 @@
 import { PriceRule } from 'src/rules/PriceRule';
-import { SimCard } from 'src/domains/SimCard';
-import { Discount } from 'src/domains/Discount';
+import { SimCard } from '../../cards/SimCard';
+import { Discount } from '../../main/Discount';
 
 export interface DiscountRule extends PriceRule {
   createDiscount(items: SimCard[]): Discount;

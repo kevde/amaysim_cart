@@ -1,5 +1,5 @@
 import 'mocha';
-import { SmallSimCard } from 'src/domains/SmallSimCard';
+import { SmallSimCard } from '../../src/cards/SmallSimCard';
 import { should } from 'chai';
 
 describe('SmallSimCard', () => {

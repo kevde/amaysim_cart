@@ -1,5 +1,5 @@
 import 'mocha';
-import { LargeSimCard } from 'src/domains/LargeSimCard';
+import { LargeSimCard } from '../../src/cards/LargeSimCard';
 import { expect, should } from 'chai';
 import * as sinon from 'sinon';
 

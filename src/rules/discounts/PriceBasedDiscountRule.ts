@@ -1,5 +1,5 @@
-import { SimCard } from 'src/domains/SimCard';
-import { Discount } from 'src/domains/Discount';
+import { SimCard } from '../../cards/SimCard';
+import { Discount } from '../../main/Discount';
 import { DiscountRule } from './DiscountRule';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { Expiration } from 'src/expirations/Expiration';

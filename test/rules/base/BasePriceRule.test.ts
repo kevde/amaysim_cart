@@ -1,9 +1,9 @@
 import 'mocha';
 import * as _ from 'lodash';
-import { SmallSimCard } from 'src/domains/SmallSimCard';
-import { MediumSimCard } from 'src/domains/MediumSimCard';
-import { LargeSimCard } from 'src/domains/LargeSimCard';
-import { DatapackSimCard } from 'src/domains/DatapackSimCard';
+import { SmallSimCard } from '../../../src/cards/SmallSimCard';
+import { MediumSimCard } from '../../../src/cards/MediumSimCard';
+import { LargeSimCard } from '../../../src/cards/LargeSimCard';
+import { DatapackSimCard } from '../../../src/cards/DatapackSimCard';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { should } from 'chai';
 

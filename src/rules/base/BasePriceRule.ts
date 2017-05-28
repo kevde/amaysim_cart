@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { PriceRule } from 'src/rules/PriceRule';
-import { SimCard } from 'src/domains/SimCard';
+import { SimCard } from '../../cards/SimCard';
 import { Expiration } from 'src/expirations/Expiration';
 
 export class BasePriceRule implements PriceRule {
@@ -16,6 +16,10 @@ export class BasePriceRule implements PriceRule {
 
   isActivated() {
     return true;
+  }
+
+  createDiscount() {
+    return null;
   }
 
   countValidItems(items: SimCard[]) {
