@@ -23,22 +23,21 @@ export class PriceBasedDiscountRule implements DiscountRule {
     return expirationValid && this.areMoreThanItemsToActivate(items);
   }
 
-  getDiscount(): Discount {
-    return null;
+  createDiscount(items: SimCard[]) {
+    const itemsLength = this.baseRule.getValidItems(items).length;
+    return new Discount(itemsLength, this.discountPerUnit, this.getTotalDiscountPrice(items));
   }
 
-    areMoreThanItemsToActivate(items: SimCard[]) {
+  get discountPerUnit() {
+    return this.baseRule.unitPrice - this.discountPrice;
+  }
+
+  private areMoreThanItemsToActivate(items: SimCard[]) {
     return this.baseRule.getValidItems(items).length > this.itemsToActivate;
   }
 
-    getDiscountPerUnit(items: SimCard[], date: Date = new Date()) {
-    const isDiscountApplied = this.isActivated(items, date);
-    return isDiscountApplied ? this.baseRule.unitPrice - this.discountPrice : 0;
-  }
-
-    getTotalDiscountPrice(items: SimCard[]) {
-    const discountedUnitPrice = this.getDiscountPerUnit(items);
+  private getTotalDiscountPrice(items: SimCard[]) {
     const itemsLength = this.baseRule.getValidItems(items).length;
-    return itemsLength * discountedUnitPrice;
+    return itemsLength * this.discountPerUnit;
   }
 }

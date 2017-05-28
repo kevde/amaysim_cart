@@ -12,7 +12,8 @@ import * as sinon from 'sinon';
 
 describe('ItemBasedDiscountRule', () => {
   let priceRule, smallCard, mediumCard, largeCard;
-  let items, basePriceRule, smallCards, mediumCards, largeCards;
+  let items, validItems;
+  let basePriceRule, smallCards, mediumCards, largeCards;
   should();
 
   before(() => {
@@ -24,27 +25,27 @@ describe('ItemBasedDiscountRule', () => {
     mediumCards = _.times(5, () => mediumCard);
     largeCards = _.times(2, () => largeCard);
     items = [...smallCards, ...mediumCards, ...largeCards];
+    validItems = [..._.times(7, () => smallCard), ...mediumCards, ...largeCards];
   });
 
   it('should count all groups of 3', () => {
     // given
-    const withGroupsOfThree = [..._.times(7, () => smallCard), ...mediumCards, ...largeCards];
     const withoutGroupsOfThree = [..._.times(2, () => smallCard), ...mediumCards, ...largeCards];
 
     // when
     priceRule = new ItemBasedDiscountRule(basePriceRule, 3, 1);
-    const withGroupsOfThreeResult = priceRule.countGroups(withGroupsOfThree);
+    const validItemsResult = priceRule.countGroups(validItems);
     const withoutGroupsOfThreeResult = priceRule.countGroups(withoutGroupsOfThree);
 
     // then
-    withGroupsOfThreeResult.should.be.equal(2);
+    validItemsResult.should.be.equal(2);
     withoutGroupsOfThreeResult.should.be.equal(0);
   });
 
   it('should check if rule is activated when expiration is one month', () => {
     // given
-    const validItems = [..._.times(7, () => smallCard), ...mediumCards, ...largeCards];
     const oneMonthExpiration = new MonthlyExpiration(new Date(2017, 0, 1), 1);
+
     // when
     priceRule = new ItemBasedDiscountRule(basePriceRule, 3, 1, oneMonthExpiration);
     const activatedResult = priceRule.isActivated(validItems, new Date(2017, 0, 2));
@@ -70,12 +71,12 @@ describe('ItemBasedDiscountRule', () => {
     invalidItemsResult.should.be.equal(false);
   });
 
-  it('should get discount price', () => {
+  it('should create discount', () => {
     // given
 
     // when
     priceRule = new ItemBasedDiscountRule(basePriceRule, 3, 1);
-    const smallCardDiscount = priceRule.getDiscount(items);
+    const smallCardDiscount = priceRule.createDiscount(items);
 
     // then
     smallCardDiscount.should.be.instanceof(Discount);

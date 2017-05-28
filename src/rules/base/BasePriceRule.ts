@@ -25,4 +25,8 @@ export class BasePriceRule implements PriceRule {
   getValidItems(items: SimCard[]) {
     return _.filter(items, (item) => item.code === this.productCode);
   }
+
+  getTotalAmount(items: SimCard[]) {
+    return this.unitPrice * this.countValidItems(items);
+  }
 }

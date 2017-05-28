@@ -1,60 +1,71 @@
 import * as _ from 'lodash';
 import { SimCard } from './SimCard';
+import { Discount } from './Discount';
 import { PriceRule } from 'src/rules/PriceRule';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
+import { AmaysimPromoRule } from 'src/rules/promos/AmaysimPromoRule';
 
 export class ShoppingCart {
   items: SimCard[];
   rules: PriceRule[];
-  baseRules: BasePriceRule[];
+  private _promoCodes: Set < string > ;
 
   constructor(rules: PriceRule[]) {
-    this.rules = this.getOtherPriceRules(rules);
-    this.baseRules = this.getBasePriceRules(rules);
+    this.rules = rules;
     this.items = [];
+    this._promoCodes = new Set();
   }
 
-  add(simCard: SimCard) {
+  get promoCodes() {
+    return Array.from(this._promoCodes);
+  }
+  add(simCard: SimCard, promoCode ? : string) {
     this.items.push(simCard);
+    this._promoCodes.add(promoCode);
   }
 
   register(priceRule: PriceRule) {
-    if (priceRule instanceof BasePriceRule) {
-      this.baseRules.push(priceRule);
-    } else {
-      this.rules.push(priceRule);
-    }
+    this.rules.push(priceRule);
   }
 
   get total() {
-    const actualPrice = _.sum(this.getListOfTotals());
-    const discounts = _.map(this.rules, (rule) => rule.getDiscount(this.items));
-    const discountPrice = _.sumBy(discounts, (discount) => discount.totalDiscount);
+    const actualPrice = this.getTotalAmount();
+    const otherDiscounts = this.getOtherDiscounts();
+    const promoDiscounts = this.getPromoDiscounts(actualPrice, otherDiscounts);
+    const discountPrice = this.getTotalDiscountAmount([...promoDiscounts, ...otherDiscounts]);
     return _.round(actualPrice - discountPrice, 2);
   }
 
-  private getListOfTotals(): number[] {
-    return _.map(this.baseRules, (baseRule) => baseRule.unitPrice * this.getItemsByCode(baseRule.productCode).length);
+  private getTotalAmount() {
+    return _.sumBy(this.baseRules, (baseRule) => baseRule.getTotalAmount(this.items));
   }
 
-  private getBasePriceRules(rules: PriceRule[]) {
-    return _.filter(rules, (rule) => rule instanceof BasePriceRule);
+  private getPromoDiscounts(actualPrice: number, discounts: Discount[]) {
+    const totalDiscountAmount = this.getTotalDiscountAmount(discounts);
+    return _.map(this.getActivatedRules(this.promoRules), (rule) => rule.createDiscount(actualPrice - totalDiscountAmount));
   }
 
-  private getOtherPriceRules(rules: PriceRule[]) {
-    return _.reject(rules, (rule) => rule instanceof BasePriceRule);
+  private getTotalDiscountAmount(discounts: Discount[]) {
+    return _.sumBy(discounts, (discount) => discount.totalDiscount);
   }
 
-  private getUnitPriceRule(code: string): BasePriceRule {
-    return _.find(this.baseRules, (rule) => rule.productCode === code);
+  private getActivatedRules(rules) {
+    return _.filter(rules, (rule) => rule.isActivated(this.items, new Date(), this.promoCodes));
   }
 
-  private getItemsByCode(code: string): SimCard[] {
-    return _.filter(this.items, (item) => item.code === code);
+  private getOtherDiscounts() {
+    return _.map(this.getActivatedRules(this.otherRules), (rule) => rule.createDiscount(this.items));
   }
 
-  private getUnitPrice(code: string): number {
-    const unitPriceRule = this.getUnitPriceRule(code);
-    return unitPriceRule.unitPrice || 0;
+  private get baseRules() {
+    return _.filter(this.rules, (rule) => rule instanceof BasePriceRule);
+  }
+
+  private get promoRules() {
+    return _.filter(this.rules, (rule) => rule instanceof AmaysimPromoRule);
+  }
+
+  private get otherRules() {
+    return _.reject(this.rules, (rule) => rule instanceof BasePriceRule || rule instanceof AmaysimPromoRule);
   }
 }

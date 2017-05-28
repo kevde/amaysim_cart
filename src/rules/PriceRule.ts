@@ -3,5 +3,5 @@ import { Expiration } from 'src/expirations/Expiration';
 
 export interface PriceRule {
   expiration: Expiration;
-  isActivated(items: SimCard[], date: Date): boolean;
+  isActivated(items: SimCard[], date: Date, promos ? : string[]): boolean;
 }

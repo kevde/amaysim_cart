@@ -23,16 +23,16 @@ export class ItemBasedDiscountRule implements DiscountRule {
     return expirationValid && this.countGroups(items) >= 1;
   }
 
-  getDiscount(items: SimCard[]) {
-    return new Discount(this.countGroups(items), this.discountUnitPrice, this.getDiscountPrice(items));
+  createDiscount(items: SimCard[]) {
+    return new Discount(this.countGroups(items), this.discountPerUnit, this.getTotalDiscountPrice(items));
   }
 
-  get discountUnitPrice() {
+  get discountPerUnit() {
     return this.baseRule.unitPrice * this.itemsDiscounted;
   }
 
-  private getDiscountPrice(items: SimCard[]) {
-    return this.discountUnitPrice * this.countGroups(items);
+  private getTotalDiscountPrice(items: SimCard[]) {
+    return this.discountPerUnit * this.countGroups(items);
   }
 
   private countGroups(items: SimCard[]) {

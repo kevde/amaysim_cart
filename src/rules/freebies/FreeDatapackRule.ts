@@ -4,7 +4,7 @@ import { SimCard } from 'src/domains/SimCard';
 import { DatapackSimCard } from 'src/domains/DatapackSimCard';
 import { Expiration } from 'src/expirations/Expiration';
 
-export class FreeDatapackRule implements PriceRule {
+export class FreeDatapackRule  {
   productCode: string;
   unitPrice: number;
   expiration: Expiration;

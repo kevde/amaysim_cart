@@ -1,5 +1,6 @@
 import 'mocha';
 import * as _ from 'lodash';
+import { Discount } from 'src/domains/Discount';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
 import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
@@ -28,9 +29,18 @@ describe('PriceBasedDiscountRule', () => {
     validItems = [...smallCards, ...mediumCards, ..._.times(7, () => largeCard)];
   });
 
+  it('should get discount per unit', () => {
+    // given
+
+    // when
+    const discountedUnitPrice = priceRule.discountPerUnit;
+
+    // then
+    discountedUnitPrice.should.be.equal(basePriceRule.unitPrice - discountedPrice);
+  });
+
   it('should check if items are more than three', () => {
     // given
-    const validItems = [...smallCards, ...mediumCards, ..._.times(7, () => largeCard)];
     const lessThanThreeItems = [...smallCards, ...mediumCards, ..._.times(2, () => largeCard)];
 
     // when
@@ -42,20 +52,6 @@ describe('PriceBasedDiscountRule', () => {
     lessThanThreeItemsResult.should.be.equal(false);
   });
 
-  it('should get discount per unit', () => {
-    // given
-    const validItems = [...smallCards, ...mediumCards, ..._.times(7, () => largeCard)];
-    const lessThanThreeItems = [...smallCards, ...mediumCards, ..._.times(2, () => largeCard)];
-
-    // when
-    const discountedUnitPrice = priceRule.getDiscountPerUnit(validItems);
-    const basicUnitPrice = priceRule.getDiscountPerUnit(lessThanThreeItems);
-
-    // then
-    discountedUnitPrice.should.be.equal(basePriceRule.unitPrice - discountedPrice);
-    basicUnitPrice.should.be.equal(0);
-  });
-
   it('should get total discount price', () => {
     // given
 
@@ -63,8 +59,20 @@ describe('PriceBasedDiscountRule', () => {
     const totalDiscountedPrice = priceRule.getTotalDiscountPrice(validItems);
 
     // then
-    const discountedUnitPrice = priceRule.getDiscountPerUnit(validItems);
     const itemsLength = priceRule.baseRule.getValidItems(validItems).length;
-    totalDiscountedPrice.should.be.equal(itemsLength * discountedUnitPrice);
+    totalDiscountedPrice.should.be.equal(itemsLength * priceRule.discountPerUnit);
+  });
+
+  it('should create discount', () => {
+    // given
+
+    // when
+    const smallCardDiscount = priceRule.createDiscount(validItems);
+
+    // then
+    smallCardDiscount.should.be.instanceof(Discount);
+    smallCardDiscount.quantities.should.be.equal(basePriceRule.getValidItems(validItems).length);
+    smallCardDiscount.unitPrice.should.be.equal(priceRule.discountPerUnit);
+    smallCardDiscount.totalDiscount.should.be.equal(priceRule.getTotalDiscountPrice(validItems));
   });
 });

@@ -9,6 +9,7 @@ import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
 import { DatapackSimCard } from 'src/domains/DatapackSimCard';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
+import { AmaysimPromoRule } from 'src/rules/promos/AmaysimPromoRule'; 
 import { PriceBasedDiscountRule } from 'src/rules/discounts/PriceBasedDiscountRule';
 import { ItemBasedDiscountRule } from 'src/rules/discounts/ItemBasedDiscountRule';
 
@@ -54,26 +55,9 @@ describe('ShoppingCart', () => {
     shoppingCart.items.should.include(mediumCard);
   });
 
-  it('should add unit prices for all sims', () => {
-    // given
-
-    // when
-    const smallSimPrice = shoppingCart.getUnitPrice('ult_small');
-    const mediumSimPrice = shoppingCart.getUnitPrice('ult_medium');
-    const largeSimPrice = shoppingCart.getUnitPrice('ult_large');
-    const datapackSimPrice = shoppingCart.getUnitPrice('1gb');
-
-    // then
-    smallSimPrice.should.be.equal(smallBasePriceRule.unitPrice);
-    mediumSimPrice.should.be.equal(mediumBasePriceRule.unitPrice);
-    largeSimPrice.should.be.equal(largeBasePriceRule.unitPrice);
-    datapackSimPrice.should.be.equal(datapackBasePriceRule.unitPrice);
-  });
-
-
   it('should register additional price rule', () => {
     // given
-    const discountRule = new PriceBasedDiscountRule(largeBasePriceRule, 39.90);
+    const discountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90);
 
     // when
     shoppingCart.register(discountRule);
@@ -90,37 +74,11 @@ describe('ShoppingCart', () => {
     const totalAmount = shoppingCart.total;
 
     // then
-    const smallSimPrice = shoppingCart.getUnitPrice('ult_small');
-    const mediumSimPrice = shoppingCart.getUnitPrice('ult_medium');
-    const largeSimPrice = shoppingCart.getUnitPrice('ult_large');
-    const datapackSimPrice = shoppingCart.getUnitPrice('1gb');
-    const smallSimTotal = smallCards.length * smallSimPrice;
-    const mediumSimTotal = mediumCards.length * mediumSimPrice;
-    const largeSimTotal = largeCards.length * largeSimPrice;
-    const datapackSimTotal = datapackCards.length * datapackSimPrice;
+    const smallSimTotal = smallCards.length * smallBasePriceRule.unitPrice;
+    const mediumSimTotal = mediumCards.length * mediumBasePriceRule.unitPrice;
+    const largeSimTotal = largeCards.length * largeBasePriceRule.unitPrice;
+    const datapackSimTotal = datapackCards.length * datapackBasePriceRule.unitPrice;
     totalAmount.should.be.equal(smallSimTotal + mediumSimTotal + largeSimTotal + datapackSimTotal);
-  });
-
-  it('should get all items by product code', () => {
-    // given
-
-    // when
-    randomize(items, (item) => shoppingCart.add(item));
-    const smallSimItems = shoppingCart.getItemsByCode('ult_small');
-    const mediumSimItems = shoppingCart.getItemsByCode('ult_medium');
-    const largeSimItems = shoppingCart.getItemsByCode('ult_large');
-    const datapackSimItems = shoppingCart.getItemsByCode('1gb');
-
-    // then
-    smallSimItems.should.all.be.instanceof(SmallSimCard);
-    mediumSimItems.should.all.be.instanceof(MediumSimCard);
-    largeSimItems.should.all.be.instanceof(LargeSimCard);
-    datapackSimItems.should.all.be.instanceof(DatapackSimCard);
-
-    smallSimItems.length.should.be.equal(smallCards.length);
-    mediumSimItems.length.should.be.equal(mediumCards.length);
-    largeSimItems.length.should.be.equal(largeCards.length);
-    datapackSimItems.length.should.be.equal(datapackCards.length);
   });
 
   it('should have total of 94.7 dollars when there are 3 small cards and 1 large card with price rule', () => {
@@ -129,31 +87,68 @@ describe('ShoppingCart', () => {
     const largeCards = _.times(1, () => largeCard);
     const items = [...smallCards, ...largeCards];
     const threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1);
+    const priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90);
 
     // when 
     shoppingCart.register(threeForTwoDiscountRule);
+    shoppingCart.register(priceDropDiscountRule);
     randomize(items, (item) => shoppingCart.add(item));
 
     // then
-    const discount = threeForTwoDiscountRule.getDiscount(items);
     shoppingCart.total.should.be.equal(94.70);
   });
 
-  it('should have total of 209.4 dollars when there are 2 small cards and 5 large cards with price rule', () => {
+  it('should have total of 209.4 dollars when there are 2 small cards and 4 large cards with price rule', () => {
     // given
-    const smallCards = _.times(3, () => smallCard);
-    const largeCards = _.times(1, () => largeCard);
+    const smallCards = _.times(2, () => smallCard);
+    const largeCards = _.times(4, () => largeCard);
     const items = [...smallCards, ...largeCards];
     const threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1);
-    const priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 39.90);
+    const priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90);
 
     // when 
     shoppingCart.register(threeForTwoDiscountRule);
+    shoppingCart.register(priceDropDiscountRule);
     randomize(items, (item) => shoppingCart.add(item));
 
     // then
-    const discount = threeForTwoDiscountRule.getDiscount(items);
-    shoppingCart.total.should.be.equal(94.70);
+    shoppingCart.total.should.be.equal(209.40);
+  });
+
+  it('should have total of 84.70 dollars when there are 1 small cards and 2 medium cards with price rule', () => {
+    // given
+    const smallCards = _.times(1, () => smallCard);
+    const mediumCards = _.times(2, () => mediumCard);
+    const items = [...smallCards, ...mediumCards];
+    const threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1);
+    const priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90);
+
+    // when 
+    shoppingCart.register(threeForTwoDiscountRule);
+    shoppingCart.register(priceDropDiscountRule);
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    shoppingCart.total.should.be.equal(84.70);
+  });
+
+  it('should have total of 31.32 dollars when there are 1 small card and 1 datapack card with price rule', () => {
+    // given
+    const smallCards = _.times(1, () => smallCard);
+    const datapackCards = _.times(1, () => datapackCard);
+    const items = [...smallCards, ...datapackCards];
+    const threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1);
+    const priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90);
+    const amaysimPromoRule = new AmaysimPromoRule(10, 'I<3AMAYSIM');
+
+    // when 
+    shoppingCart.register(threeForTwoDiscountRule);
+    shoppingCart.register(priceDropDiscountRule);
+    shoppingCart.register(amaysimPromoRule);
+    randomize(items, (item) => shoppingCart.add(item, 'I<3AMAYSIM'));
+
+    // then
+    shoppingCart.total.should.be.equal(31.32);
   });
 
   const randomize = (orderedItems, callback) => {
