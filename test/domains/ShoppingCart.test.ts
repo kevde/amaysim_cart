@@ -1,8 +1,7 @@
 import 'mocha';
 import * as _ from 'lodash';
-import * as sinon from 'sinon';
 import * as chaiThings from 'chai-things';
-import { expect, should, use } from 'chai';
+import { should, use } from 'chai';
 import { ShoppingCart } from 'src/domains/ShoppingCart';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
 import { MediumSimCard } from 'src/domains/MediumSimCard';
@@ -10,15 +9,17 @@ import { LargeSimCard } from 'src/domains/LargeSimCard';
 import { DatapackSimCard } from 'src/domains/DatapackSimCard';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { AmaysimPromoRule } from 'src/rules/promos/AmaysimPromoRule';
+import { FreeDatapackRule } from 'src/rules/freebies/FreeDatapackRule';
 import { PriceBasedDiscountRule } from 'src/rules/discounts/PriceBasedDiscountRule';
 import { ItemBasedDiscountRule } from 'src/rules/discounts/ItemBasedDiscountRule';
+import { MonthlyExpiration } from 'src/expirations/MonthlyExpiration';
 
 describe('ShoppingCart', () => {
   let shoppingCart, items;
   let smallCard, mediumCard, largeCard, datapackCard;
   let smallCards, mediumCards, largeCards, datapackCards;
   let smallBasePriceRule, mediumBasePriceRule, largeBasePriceRule, datapackBasePriceRule;
-  let threeForTwoDiscountRule, priceDropDiscountRule, amaysimPromoRule;
+  let threeForTwoDiscountRule, priceDropDiscountRule, freeDatapackRule, amaysimPromoRule;
   let baseRules;
 
   should();
@@ -32,10 +33,11 @@ describe('ShoppingCart', () => {
 
     threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1);
     priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90);
+    freeDatapackRule = new FreeDatapackRule(mediumBasePriceRule, 2);
     amaysimPromoRule = new AmaysimPromoRule(10, 'I<3AMAYSIM');
 
     baseRules = [smallBasePriceRule, mediumBasePriceRule, largeBasePriceRule, datapackBasePriceRule];
-    const discountRules = [threeForTwoDiscountRule, priceDropDiscountRule, amaysimPromoRule];
+    const discountRules = [threeForTwoDiscountRule, priceDropDiscountRule, freeDatapackRule, amaysimPromoRule];
     const priceRules = [...baseRules, ...discountRules];
 
     shoppingCart = new ShoppingCart(priceRules);
@@ -64,17 +66,6 @@ describe('ShoppingCart', () => {
     shoppingCart.items.should.include(mediumCard);
   });
 
-  it('should register additional price rule', () => {
-    // given
-    const discountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90);
-
-    // when
-    shoppingCart.register(discountRule);
-
-    // then
-    shoppingCart.rules.should.include(discountRule);
-  });
-
   it('should get the total amount of all the items', () => {
     // given
 
@@ -91,7 +82,7 @@ describe('ShoppingCart', () => {
     totalAmount.should.be.equal(smallSimTotal + mediumSimTotal + largeSimTotal + datapackSimTotal);
   });
 
-  it('should have total of 94.7 dollars when there are 3 small cards and 1 large card with price rule', () => {
+  it('should have total of 94.7 dollars when there are 3 small cards and 1 large card', () => {
     // given
     const smallCards = _.times(3, () => smallCard);
     const largeCards = _.times(1, () => largeCard);
@@ -104,7 +95,9 @@ describe('ShoppingCart', () => {
     shoppingCart.total.should.be.equal(94.70);
   });
 
-  it('should have total of 209.4 dollars when there are 2 small cards and 4 large cards with price rule', () => {
+
+
+  it('should have total of 209.4 dollars when there are 2 small cards and 4 large cards', () => {
     // given
     const smallCards = _.times(2, () => smallCard);
     const largeCards = _.times(4, () => largeCard);
@@ -117,7 +110,7 @@ describe('ShoppingCart', () => {
     shoppingCart.total.should.be.equal(209.40);
   });
 
-  it('should have total of 84.70 dollars when there are 1 small cards and 2 medium cards with price rule', () => {
+  it('should have total of 84.70 dollars when there are 1 small cards and 2 medium cards', () => {
     // given
     const smallCards = _.times(1, () => smallCard);
     const mediumCards = _.times(2, () => mediumCard);
@@ -130,7 +123,7 @@ describe('ShoppingCart', () => {
     shoppingCart.total.should.be.equal(84.70);
   });
 
-  it('should have total of 31.32 dollars when there are 1 small card and 1 datapack card with price rule', () => {
+  it('should have total of 31.32 dollars when there are 1 small card and 1 datapack card', () => {
     // given
     const smallCards = _.times(1, () => smallCard);
     const datapackCards = _.times(1, () => datapackCard);
@@ -141,6 +134,38 @@ describe('ShoppingCart', () => {
 
     // then
     shoppingCart.total.should.be.equal(31.32);
+  });
+
+  it('should display free datapacks when there are 1 small card and 2 medium cards', () => {
+    // given
+    const smallCards = _.times(1, () => smallCard);
+    const mediumCards = _.times(2, () => mediumCard);
+    const items = [...smallCards, ...mediumCards];
+
+    // when 
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    shoppingCart.total.should.be.equal(84.70);
+    shoppingCart.items.should.contain.an.item.with.instanceof(DatapackSimCard);
+  });
+
+  it('should have total of 119.6 dollars when there are 3 small cards and 1 large card and expiration date occured', () => {
+    // given
+    const smallCards = _.times(3, () => smallCard);
+    const largeCards = _.times(1, () => largeCard);
+    const items = [...smallCards, ...largeCards];
+    const currentDate = new Date(2017, 2, 16);
+    const expiration = new MonthlyExpiration(new Date(2017, 4, 15), 1);
+    threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1, expiration);
+    priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 3, 39.90, expiration);
+
+    // when
+    shoppingCart = new ShoppingCart([...baseRules, threeForTwoDiscountRule, priceDropDiscountRule, freeDatapackRule, amaysimPromoRule], currentDate)
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    shoppingCart.total.should.be.equal(119.6);
   });
 
   const randomize = (orderedItems, callback) => {

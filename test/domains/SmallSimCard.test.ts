@@ -1,7 +1,6 @@
 import 'mocha';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
-import { expect, should } from 'chai';
-import * as sinon from 'sinon';
+import { should } from 'chai';
 
 describe('SmallSimCard', () => {
   let simCard;

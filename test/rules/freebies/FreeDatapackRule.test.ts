@@ -1,7 +1,7 @@
 import 'mocha';
 import * as _ from 'lodash';
 import * as chaiThings from 'chai-things';
-import { expect, should, use } from 'chai';
+import { should, use } from 'chai';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
 import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';

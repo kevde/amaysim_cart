@@ -4,22 +4,20 @@ import { Discount } from 'src/domains/Discount';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
 import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
-import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { AmaysimPromoRule } from 'src/rules/promos/AmaysimPromoRule';
-import { expect, should } from 'chai';
-import * as sinon from 'sinon';
+import { should } from 'chai';
 
 
 const PROMO_CODE = 'I<3AMAYSIM';
 
 describe('AmaysimPromoRule', () => {
   let priceRule, smallCard, mediumCard, largeCard;
-  let items, validItems;
-  let basePriceRule, smallCards, mediumCards, largeCards;
+  let items, promoCodes, promoCodesWithAmaysim;
+  let smallCards, mediumCards, largeCards;
   should();
 
   before(() => {
-    priceRule = new AmaysimPromoRule(10, 'I<3AMAYSIM');
+    priceRule = new AmaysimPromoRule(10, PROMO_CODE);
     smallCard = new SmallSimCard();
     mediumCard = new MediumSimCard();
     largeCard = new LargeSimCard();
@@ -27,12 +25,12 @@ describe('AmaysimPromoRule', () => {
     mediumCards = _.times(5, () => mediumCard);
     largeCards = _.times(2, () => largeCard);
     items = [...smallCards, ...mediumCards, ...largeCards];
+    promoCodes = ['IAMINVALID', 'INVALID2'];
+    promoCodesWithAmaysim = ['IAMINVALID', 'INVALID2', PROMO_CODE];
   });
 
   it('should detect if promo code is in list', () => {
     // given
-    const promoCodes = ['IAMINVALID', 'INVALID2'];
-    const promoCodesWithAmaysim = ['IAMINVALID', 'INVALID2', PROMO_CODE];
 
     // when
     const firstResult = priceRule.isPromoInList(promoCodes);
@@ -45,8 +43,6 @@ describe('AmaysimPromoRule', () => {
 
   it('should check if it is activated when promo code is existing', () => {
     // given
-    const promoCodes = ['IAMINVALID', 'INVALID2'];
-    const promoCodesWithAmaysim = ['IAMINVALID', 'INVALID2', PROMO_CODE];
 
     // when
     const firstResult = priceRule.isActivated([], new Date(), promoCodes);

@@ -7,8 +7,7 @@ import { Discount } from 'src/domains/Discount';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { ItemBasedDiscountRule } from 'src/rules/discounts/ItemBasedDiscountRule';
 import { MonthlyExpiration } from 'src/expirations/MonthlyExpiration';
-import { expect, should } from 'chai';
-import * as sinon from 'sinon';
+import { should } from 'chai';
 
 describe('ItemBasedDiscountRule', () => {
   let priceRule, smallCard, mediumCard, largeCard;

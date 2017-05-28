@@ -5,12 +5,11 @@ import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
 import { DatapackSimCard } from 'src/domains/DatapackSimCard';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
-import { expect, should } from 'chai';
-import * as sinon from 'sinon';
+import { should } from 'chai';
 
 describe('BasePriceRule', () => {
-  let priceRule, smallCard, mediumCard, largeCard, datapackCard;
-  let items, unitPrice, smallCards, mediumCards, largeCards, datapackCards;
+  let smallCard, mediumCard, largeCard, datapackCard;
+  let items, smallCards, mediumCards, largeCards, datapackCards;
   let smallBasePriceRule, mediumBasePriceRule, largeBasePriceRule, datapackBasePriceRule;
   should();
 

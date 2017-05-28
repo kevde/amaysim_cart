@@ -6,8 +6,7 @@ import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { PriceBasedDiscountRule } from 'src/rules/discounts/PriceBasedDiscountRule';
-import { expect, should } from 'chai';
-import * as sinon from 'sinon';
+import { should } from 'chai';
 
 describe('PriceBasedDiscountRule', () => {
   let priceRule, smallCard, mediumCard, largeCard, discountedPrice;

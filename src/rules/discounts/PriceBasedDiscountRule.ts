@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { SimCard } from 'src/domains/SimCard';
 import { Discount } from 'src/domains/Discount';
 import { DiscountRule } from './DiscountRule';
