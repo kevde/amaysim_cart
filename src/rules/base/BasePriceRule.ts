@@ -14,6 +14,10 @@ export class BasePriceRule implements PriceRule {
     this.expiration = null;
   }
 
+  isActivated() {
+    return true;
+  }
+
   countValidItems(items: SimCard[]) {
     return this.getValidItems(items).length;
   }

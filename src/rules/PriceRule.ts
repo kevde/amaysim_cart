@@ -1,8 +1,7 @@
+import { SimCard } from 'src/domains/SimCard';
 import { Expiration } from 'src/expirations/Expiration';
 
 export interface PriceRule {
-  productCode: string;
-  unitPrice: number;
   expiration: Expiration;
-  isActivated: Function;
+  isActivated(items: SimCard[], date: Date): boolean;
 }

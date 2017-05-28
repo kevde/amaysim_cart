@@ -1,24 +1,8 @@
 import * as _ from 'lodash';
 import { PriceRule } from 'src/rules/PriceRule';
 import { SimCard } from 'src/domains/SimCard';
-import { Expiration } from 'src/expirations/Expiration';
+import { Discount } from 'src/domains/Discount';
 
-export class DiscountRule implements PriceRule {
-  productCode: string;
-  unitPrice: number;
-  expiration: Expiration;
-
-  constructor(productCode: string, unitPrice: number, expiration: Expiration) {
-    this.productCode = productCode;
-    this.unitPrice = unitPrice;
-    this.expiration = expiration;
-  }
-
-  countValidItems(items: SimCard[]) {
-    return this.getValidItems(items).length;
-  }
-
-  getValidItems(items: SimCard[]) {
-    return _.filter(items, (item) => item.code === this.productCode);
-  }
+export interface DiscountRule extends PriceRule {
+  getDiscount(items: SimCard[]): Discount;
 }
