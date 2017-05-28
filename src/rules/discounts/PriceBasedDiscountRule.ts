@@ -2,6 +2,7 @@ import * as _ from 'lodash';
 import { SimCard } from 'src/domains/SimCard';
 import { PriceRule } from 'src/rules/PriceRule';
 import { DiscountRule } from './DiscountRule';
+import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { Expiration } from 'src/expirations/Expiration';
 
 export class PriceBasedDiscountRule extends DiscountRule implements PriceRule {
@@ -10,9 +11,10 @@ export class PriceBasedDiscountRule extends DiscountRule implements PriceRule {
   discountPrice: number;
   expiration: Expiration;
 
-  constructor(productCode: string, unitPrice: number, discountPrice: number) {
-    super(productCode, unitPrice);
+  constructor(baseRule: BasePriceRule, discountPrice: number, expiration: Expiration = null) {
+    super(baseRule.productCode, baseRule.unitPrice, expiration);
     this.discountPrice = discountPrice;
+
   }
 
   areMoreThanThreeItems(items: SimCard[]) {

@@ -10,10 +10,12 @@ import { LargeSimCard } from 'src/domains/LargeSimCard';
 import { DatapackSimCard } from 'src/domains/DatapackSimCard';
 import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { PriceBasedDiscountRule } from 'src/rules/discounts/PriceBasedDiscountRule';
+import { ItemBasedDiscountRule } from 'src/rules/discounts/ItemBasedDiscountRule';
 
 describe('ShoppingCart', () => {
-  let shoppingCart;
+  let shoppingCart, items;
   let smallCard, mediumCard, largeCard, datapackCard;
+  let smallCards, mediumCards, largeCards, datapackCards;
   let smallBasePriceRule, mediumBasePriceRule, largeBasePriceRule, datapackBasePriceRule;
   should();
   use(chaiThings);
@@ -25,11 +27,18 @@ describe('ShoppingCart', () => {
     datapackBasePriceRule = new BasePriceRule('1gb', 9.90);
     const priceRules = [smallBasePriceRule, mediumBasePriceRule, largeBasePriceRule, datapackBasePriceRule]
 
+
     shoppingCart = new ShoppingCart(priceRules);
     smallCard = new SmallSimCard();
     mediumCard = new MediumSimCard();
     largeCard = new LargeSimCard();
     datapackCard = new DatapackSimCard();
+
+    smallCards = _.times(5, () => smallCard);
+    mediumCards = _.times(2, () => mediumCard);
+    largeCards = _.times(3, () => largeCard);
+    datapackCards = _.times(10, () => datapackCard);
+    items = [...smallCards, ...mediumCards, ...largeCards, ...datapackCards];
   });
 
   it('should add items', () => {
@@ -64,7 +73,7 @@ describe('ShoppingCart', () => {
 
   it('should register additional price rule', () => {
     // given
-    const discountRule = new PriceBasedDiscountRule('ult_small', 49.90, 39.90);
+    const discountRule = new PriceBasedDiscountRule(largeBasePriceRule, 39.90);
 
     // when
     shoppingCart.register(discountRule);
@@ -75,11 +84,6 @@ describe('ShoppingCart', () => {
 
   it('should get the total amount of all the items', () => {
     // given
-    const smallCards = _.times(5, () => smallCard);
-    const mediumCards = _.times(2, () => mediumCard);
-    const largeCards = _.times(3, () => largeCard);
-    const datapackCards = _.times(10, () => datapackCard);
-    const items = [...smallCards, ...mediumCards, ...largeCards, ...datapackCards];
 
     // when
     randomize(items, (item) => shoppingCart.add(item));
@@ -99,11 +103,6 @@ describe('ShoppingCart', () => {
 
   it('should get all items by product code', () => {
     // given
-    const smallCards = _.times(5, () => smallCard);
-    const mediumCards = _.times(2, () => mediumCard);
-    const largeCards = _.times(3, () => largeCard);
-    const datapackCards = _.times(10, () => datapackCard);
-    const items = [...smallCards, ...mediumCards, ...largeCards, ...datapackCards];
 
     // when
     randomize(items, (item) => shoppingCart.add(item));
@@ -122,6 +121,39 @@ describe('ShoppingCart', () => {
     mediumSimItems.length.should.be.equal(mediumCards.length);
     largeSimItems.length.should.be.equal(largeCards.length);
     datapackSimItems.length.should.be.equal(datapackCards.length);
+  });
+
+  it('should have total of 94.7 dollars when there are 3 small cards and 1 large card with price rule', () => {
+    // given
+    const smallCards = _.times(3, () => smallCard);
+    const largeCards = _.times(1, () => largeCard);
+    const items = [...smallCards, ...largeCards];
+    const threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1);
+
+    // when 
+    shoppingCart.register(threeForTwoDiscountRule);
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    const discount = threeForTwoDiscountRule.getDiscount(items);
+    shoppingCart.total.should.be.equal(94.70);
+  });
+
+  it('should have total of 209.4 dollars when there are 2 small cards and 5 large cards with price rule', () => {
+    // given
+    const smallCards = _.times(3, () => smallCard);
+    const largeCards = _.times(1, () => largeCard);
+    const items = [...smallCards, ...largeCards];
+    const threeForTwoDiscountRule = new ItemBasedDiscountRule(smallBasePriceRule, 3, 1);
+    const priceDropDiscountRule = new PriceBasedDiscountRule(largeBasePriceRule, 39.90);
+
+    // when 
+    shoppingCart.register(threeForTwoDiscountRule);
+    randomize(items, (item) => shoppingCart.add(item));
+
+    // then
+    const discount = threeForTwoDiscountRule.getDiscount(items);
+    shoppingCart.total.should.be.equal(94.70);
   });
 
   const randomize = (orderedItems, callback) => {

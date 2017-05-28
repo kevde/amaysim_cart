@@ -27,7 +27,10 @@ export class ShoppingCart {
   }
 
   get total() {
-    return _.sum(this.getListOfTotals());
+    const actualPrice = _.sum(this.getListOfTotals());
+    const discounts = _.map(this.rules, (rule) => rule.getDiscount(this.items));
+    const discountPrice = _.sumBy(discounts, (discount) => discount.totalDiscount);
+    return _.round(actualPrice - discountPrice, 2);
   }
 
   private getListOfTotals(): number[] {

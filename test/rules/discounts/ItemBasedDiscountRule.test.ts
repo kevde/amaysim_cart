@@ -3,18 +3,20 @@ import * as _ from 'lodash';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
 import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
+import { Discount } from 'src/domains/Discount';
+import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { ItemBasedDiscountRule } from 'src/rules/discounts/ItemBasedDiscountRule';
+import { MonthlyExpiration } from 'src/expirations/MonthlyExpiration';
 import { expect, should } from 'chai';
 import * as sinon from 'sinon';
 
 describe('ItemBasedDiscountRule', () => {
   let priceRule, smallCard, mediumCard, largeCard;
-  let items, unitPrice, smallCards, mediumCards, largeCards;
+  let items, basePriceRule, smallCards, mediumCards, largeCards;
   should();
 
   before(() => {
-    unitPrice = 24.90;
-    priceRule = new ItemBasedDiscountRule('ult_small', unitPrice);
+    basePriceRule = new BasePriceRule('ult_small', 24.90);
     smallCard = new SmallSimCard();
     mediumCard = new MediumSimCard();
     largeCard = new LargeSimCard();
@@ -24,37 +26,61 @@ describe('ItemBasedDiscountRule', () => {
     items = [...smallCards, ...mediumCards, ...largeCards];
   });
 
-  it('should count all valid items', () => {
-    // given
-
-    // when
-    const smallCardCount = priceRule.countValidItems(items);
-
-    // then
-    smallCardCount.should.be.equal(7);
-  });
-
   it('should count all groups of 3', () => {
     // given
     const withGroupsOfThree = [..._.times(7, () => smallCard), ...mediumCards, ...largeCards];
     const withoutGroupsOfThree = [..._.times(2, () => smallCard), ...mediumCards, ...largeCards];
 
     // when
-    const withGroupsOfThreeResult = priceRule.countGroupsofThree(withGroupsOfThree);
-    const withoutGroupsOfThreeResult = priceRule.countGroupsofThree(withoutGroupsOfThree);
+    priceRule = new ItemBasedDiscountRule(basePriceRule, 3, 1);
+    const withGroupsOfThreeResult = priceRule.countGroups(withGroupsOfThree);
+    const withoutGroupsOfThreeResult = priceRule.countGroups(withoutGroupsOfThree);
 
     // then
     withGroupsOfThreeResult.should.be.equal(2);
     withoutGroupsOfThreeResult.should.be.equal(0);
   });
 
+  it('should check if rule is activated when expiration is one month', () => {
+    // given
+    const validItems = [..._.times(7, () => smallCard), ...mediumCards, ...largeCards];
+    const oneMonthExpiration = new MonthlyExpiration(new Date(2017, 0, 1), 1);
+    // when
+    priceRule = new ItemBasedDiscountRule(basePriceRule, 3, 1, oneMonthExpiration);
+    const activatedResult = priceRule.isActivated(validItems, new Date(2017, 0, 2));
+    const inactivatedResult = priceRule.isActivated(validItems, new Date(2017, 1, 28));
+
+    // then
+    activatedResult.should.be.equal(true);
+    inactivatedResult.should.be.equal(false);
+  });
+
+  it('should check if rule is activated when number of valid items are passed', () => {
+    // given
+    const validItems = [..._.times(7, () => smallCard), ...mediumCards, ...largeCards];
+    const invalidItems = [..._.times(2, () => smallCard), ...mediumCards, ...largeCards];
+
+    // when
+    priceRule = new ItemBasedDiscountRule(basePriceRule, 3, 1);
+    const validItemsResult = priceRule.isActivated(validItems);
+    const invalidItemsResult = priceRule.isActivated(invalidItems);
+
+    // then
+    validItemsResult.should.be.equal(true);
+    invalidItemsResult.should.be.equal(false);
+  });
+
   it('should get discount price', () => {
     // given
 
     // when
-    const smallCardDiscount = priceRule.getDiscountPrice(items);
+    priceRule = new ItemBasedDiscountRule(basePriceRule, 3, 1);
+    const smallCardDiscount = priceRule.getDiscount(items);
 
     // then
-    smallCardDiscount.should.be.equal(unitPrice * priceRule.countGroupsofThree(items));
+    smallCardDiscount.should.be.instanceof(Discount);
+    smallCardDiscount.quantities.should.be.equal(priceRule.countGroups(items))
+    smallCardDiscount.unitPrice.should.be.equal(basePriceRule.unitPrice)
+    smallCardDiscount.totalDiscount.should.be.equal(basePriceRule.unitPrice * priceRule.countGroups(items));
   });
 });

@@ -3,18 +3,19 @@ import * as _ from 'lodash';
 import { SmallSimCard } from 'src/domains/SmallSimCard';
 import { MediumSimCard } from 'src/domains/MediumSimCard';
 import { LargeSimCard } from 'src/domains/LargeSimCard';
+import { BasePriceRule } from 'src/rules/base/BasePriceRule';
 import { PriceBasedDiscountRule } from 'src/rules/discounts/PriceBasedDiscountRule';
 import { expect, should } from 'chai';
 import * as sinon from 'sinon';
 
 describe('PriceBasedDiscountRule', () => {
   let priceRule, smallCard, mediumCard, largeCard;
-  let items, unitPrice, smallCards, mediumCards, largeCards;
+  let items, basePriceRule, smallCards, mediumCards, largeCards;
   should();
 
   before(() => {
-    unitPrice = 44.90;
-    priceRule = new PriceBasedDiscountRule('ult_large', unitPrice, 39.90);
+    basePriceRule = new BasePriceRule('ult_large', 44.90);
+    priceRule = new PriceBasedDiscountRule(basePriceRule, 39.90);
     smallCard = new SmallSimCard();
     mediumCard = new MediumSimCard();
     largeCard = new LargeSimCard();
@@ -22,16 +23,6 @@ describe('PriceBasedDiscountRule', () => {
     mediumCards = _.times(5, () => mediumCard);
     largeCards = _.times(2, () => largeCard);
     items = [...smallCards, ...mediumCards, ...largeCards];
-  });
-
-  it('should count all valid items', () => {
-    // given
-
-    // when
-    const smallCardCount = priceRule.countValidItems(items);
-
-    // then
-    smallCardCount.should.be.equal(2);
   });
 
   it('should check if items are more than three', () => {

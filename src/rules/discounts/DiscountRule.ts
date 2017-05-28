@@ -8,10 +8,10 @@ export class DiscountRule implements PriceRule {
   unitPrice: number;
   expiration: Expiration;
 
-  constructor(productCode: string, unitPrice: number) {
+  constructor(productCode: string, unitPrice: number, expiration: Expiration) {
     this.productCode = productCode;
     this.unitPrice = unitPrice;
-    this.expiration = null;
+    this.expiration = expiration;
   }
 
   countValidItems(items: SimCard[]) {

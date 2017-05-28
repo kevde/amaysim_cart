@@ -4,4 +4,5 @@ export interface PriceRule {
   productCode: string;
   unitPrice: number;
   expiration: Expiration;
+  isActivated: Function;
 }
