@@ -48,6 +48,16 @@ export class ShoppingCart {
     this.setDiscounts(actualAmount);
   }
 
+  clear() {
+    this._items = [];
+    this.discounts = [];
+    this._promoCodes.clear();
+  }
+
+  countItems() {
+    return this._items.length;
+  }
+
   private getActualAmount() {
     return _.sumBy(this.baseRules, (baseRule) => baseRule.getTotalAmount(this._items));
   }
